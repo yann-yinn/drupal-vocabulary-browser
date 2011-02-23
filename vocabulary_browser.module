@@ -4,6 +4,7 @@
  * @file vocabulary_browser.module
  * 
  * Provide an alternative way to browse through complex vocabularies with several levels
+ *
  * @FIXME utiliser taxonomy_term_path()
  * @FIXME traductions
  * @FIXME hook_uninstall
@@ -15,6 +16,9 @@
 
 /**
  * Implements hook_form_FORM_ID_alter
+ *
+ * when we are comming from vocabulary_browser to add a term, automatically
+ * select the parent with tid in url
  */
 function vocabulary_browser_form_taxonomy_form_term_alter(&$form, &$form_state) {
   if (arg(4) == 'add') {
@@ -101,10 +105,9 @@ function vocabulary_browser_theme($existing, $type, $theme, $path) {
 }
 
 /**
- * Implémente hook_vocabulary_browser_themes();
+ * Implements hook_vocabulary_browser_themes();
  *
- * Déclare des themes utilisables par notre explorateur de theme. On
- * peut ensuite choisir le theme à utiliser dans l'administration du module.
+ * @see README.txt
  */
 function vocabulary_browser_vocabulary_browser_themes() {
   $path = drupal_get_path('module', 'vocabulary_browser') . '/themes';
@@ -130,7 +133,7 @@ function vocabulary_browser_vocabulary_browser_themes() {
  */
 function vocabulary_browser_page() {
 
-  // on caste en int par sécurité. Si pas d'argument, on reçoit 0.
+  // cast to int for security.
   $vid = (int)arg(4);
   $tid = (int)arg(5);
 
@@ -166,7 +169,7 @@ function template_preprocess_vocabulary_browser_wrapper(&$variables) {
 }
 
 /**
- * Implementes template_preprocess_hook()
+ * Implements template_preprocess_hook()
  */
 function template_preprocess_vocabulary_browser_terms(&$variables) {
 
@@ -175,7 +178,7 @@ function template_preprocess_vocabulary_browser_terms(&$variables) {
 
   foreach ($variables['terms'] as $key => $term) { 
     
-    // ajouter une propriété si le terme est parent
+    // add a variable if this term is a parent term
     $tids  = vocabulary_browser_term_children_tids_get($term->tid);
     if ($tids) {
       $classes = 'has-children';
@@ -186,12 +189,12 @@ function template_preprocess_vocabulary_browser_terms(&$variables) {
       $variables['terms'][$key]->has_children = FALSE;
     }
 
-    // ajouter une propriété si le terme vient juste d'être crée
+    // add a variable if this term is a new one
     $is_new = _vocabulary_browser_term_is_new($term);
     $classes = $is_new ? "$classes is-new" : $classes;
     $variables['terms'][$key]->is_new = $is_new;
 
-    // créer l'url pour voir les terms enfants d'un terme
+    // build url that leads to children terms of this term
     $url_view   = "admin/content/taxonomy/vocabulary-browser/$term->vid/$term->tid";
     $options = array(
       'attributes' => array('class' => "view $classes", 'title' => t($term->name)),
@@ -201,7 +204,7 @@ function template_preprocess_vocabulary_browser_terms(&$variables) {
     }
     $variables['terms'][$key]->view_link = l($term->name, $url_view, $options);
 
-    // créer l'url pour voir les terms enfants d'un terme
+    // build url to edit this term
     $url_edit   = "admin/content/taxonomy/edit/term/$term->tid";
     $options = array(
       'query' => drupal_get_destination() . "&vb_tid_parent=$tid",
@@ -210,17 +213,17 @@ function template_preprocess_vocabulary_browser_terms(&$variables) {
     $variables['terms'][$key]->edit_link = l('Editer', $url_edit, $options);
   }
 
-  // trier les termes par ordre alphabétique
+  // sort terms by name
   $variables['terms'] = vocabulary_browser_terms_alphabetical_order($variables['terms']);
 
-  // placer d'abord les termes parents, puis les termes enfant
-  if (variable_get('vocabulary_browser_display_parents_at_top', 1)) {
+  // put parent terms at the top, then terms with no child
+  if (variable_get('vocabulary_browser_display_parents_at_top', 0)) {
     $variables['terms'] = _vocabulary_browser_parents_at_top($variables['terms']);
   }
 }
 
 /**
- * Implementes template_preprocess_hook()
+ * Implements template_preprocess_hook()
  */
 function template_preprocess_vocabulary_browser_vocabularies(&$variables) {
   $variables['links'] = array();
@@ -234,9 +237,8 @@ function template_preprocess_vocabulary_browser_vocabularies(&$variables) {
  ************************/
 
 /**
- * Retrouver tous les termes enfant de premier niveau
- * d'un terme parent ou à la racine d'un vocabulaire si
- * $vb_tid_parent vaut 0.
+ * Find all first-level term for a given vocabulary and parent term.
+ * If tid_parent is 0, this means we are at vocabulary root.
  *
  * @param (int) $vid
  *   Le vocabulaire dans lequel on cherche nos terms
@@ -259,18 +261,17 @@ function vocabulary_browser_term_direct_children_get($vid, $tid_parent) {
 }
 
 /**
- * Ce n'est PAS le fil d'arianne de Drupal
+ * This NOT drupal breadcrumb.
  *
- * C'est un fil d'arianne supplémentaire en haut
- * de page pour remonter facilement d'un niveau
- * dans la hiérarchie d'un vocabulaire.
+ * This is a sub breadcrumb dedicated to vocabulary browser
+ * to browse through terms in a vobulary
  */
 function vocabulary_browser_breadcrumb_items_get($vid, $tid) {
   $vocabulary    = taxonomy_vocabulary_load($vid);
   $term_current  = taxonomy_get_term($tid);
   $terms_parents = taxonomy_get_parents_all($tid);
 
-  // le premier terme parent est le term_current, on le supprime.
+  // first term is current term, throw it away
   array_shift($terms_parents); 
   $links = array();
   if ($tid) {
@@ -284,7 +285,7 @@ function vocabulary_browser_breadcrumb_items_get($vid, $tid) {
   }
   $links[] = l('Vocabulaires', 'admin/content/taxonomy/vocabulary-browser');
   $links = array_reverse($links);
-  // si il n'y a qu'un seul lien, on ne renvoie rien
+  // don't display anything if only one item in the breadcrumb
   if (count($links) < 2) {
     return FALSE;
   }
@@ -293,6 +294,10 @@ function vocabulary_browser_breadcrumb_items_get($vid, $tid) {
   }
 }
 
+/**
+ * Get links for toolbar and allow other modules to add
+ * their own links to vocabulary_browser toolbar
+ */
 function vocabulary_browser_toolbar_links_get() {
   $vid = (int)arg(4);
   $tid = (int)arg(5);
@@ -315,10 +320,10 @@ function vocabulary_browser_toolbar_links_get() {
 }
 
 /**
- * Retourne les tids enfants à partir d'un tid parent
+ * Find all term children tids from a given term.
  *
  * @return
- *   array si tids enfants trouvés, FALSE sinon.
+ *   array of children tids trouvés or FALSE.
  */
 function vocabulary_browser_term_children_tids_get($tid_parent) {
   $sql    = "SELECT tid FROM term_hierarchy WHERE parent = %d";
@@ -345,13 +350,13 @@ function vocabulary_browser_term_children_tids_get($tid_parent) {
 function vocabulary_browser_check_args() {}
 
 /**
- * Réordonner un tableau de term par ordre alphabétique
+ * Sort terms by name.
  *
  * @param $terms
  *   array d'objets term
  *
  * @return
- *   array d'objet term trié
+ *   array d'objet term sorted
  */
 function vocabulary_browser_terms_alphabetical_order($terms) {
   $index = array();
@@ -395,6 +400,9 @@ function _vocabulary_browser_term_is_new($term) {
   return (bool)$is_new; 
 }
 
+/**
+ * Helper functions to get current theme path for vocabulary_browser
+ */
 function vocabulary_browser_theme_path_get() {
  return variable_get('vocabulary_browser_theme_path', drupal_get_path('module', 'vocabulary_browser') . '/themes/simple');
 }
