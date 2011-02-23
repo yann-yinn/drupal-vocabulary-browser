@@ -6,6 +6,7 @@
  * Provide an alternative way to browse through complex vocabularies with several levels
  *
  * @FIXME utiliser taxonomy_term_path()
+ * @FIXME utiliser db_rewrite_sql()
  * @FIXME traductions
  * @FIXME hook_uninstall
  */
@@ -202,7 +203,7 @@ function template_preprocess_vocabulary_browser_terms(&$variables) {
     if ($term_name_lenght = variable_get('vocabulary_browser_term_name_lenght', 40)) {
       $term->name = truncate_utf8($term->name, $term_name_lenght, FALSE, TRUE);
     }
-    $variables['terms'][$key]->view_link = l($term->name, $url_view, $options);
+    $variables['terms'][$key]->view_link = l(t($term->name), $url_view, $options);
 
     // build url to edit this term
     $url_edit   = "admin/content/taxonomy/edit/term/$term->tid";
@@ -210,7 +211,7 @@ function template_preprocess_vocabulary_browser_terms(&$variables) {
       'query' => drupal_get_destination() . "&vb_tid_parent=$tid",
       'attributes' => array('class' => 'edit', 'title' => 'Modifier ce terme'),
     );
-    $variables['terms'][$key]->edit_link = l('Editer', $url_edit, $options);
+    $variables['terms'][$key]->edit_link = l(t('Edit'), $url_edit, $options);
   }
 
   // sort terms by name
@@ -228,7 +229,7 @@ function template_preprocess_vocabulary_browser_terms(&$variables) {
 function template_preprocess_vocabulary_browser_vocabularies(&$variables) {
   $variables['links'] = array();
   foreach ($variables['vocabularies'] as $key => $vocabulary) { 
-    $variables['links'][] = l($vocabulary->name, "admin/content/taxonomy/vocabulary-browser/$vocabulary->vid");
+    $variables['links'][] = l(t($vocabulary->name), "admin/content/taxonomy/vocabulary-browser/$vocabulary->vid");
   }
 }
 
@@ -283,7 +284,7 @@ function vocabulary_browser_breadcrumb_items_get($vid, $tid) {
   if ($vid) {
     $links[] = $tid ? l($vocabulary->name, "admin/content/taxonomy/vocabulary-browser/$vid") : $vocabulary->name;
   }
-  $links[] = l('Vocabulaires', 'admin/content/taxonomy/vocabulary-browser');
+  $links[] = l(t('Vocabulaires'), 'admin/content/taxonomy/vocabulary-browser');
   $links = array_reverse($links);
   // don't display anything if only one item in the breadcrumb
   if (count($links) < 2) {
@@ -312,7 +313,7 @@ function vocabulary_browser_toolbar_links_get() {
      'attributes' => array('id' => 'new-term'),
      'query' => drupal_get_destination() . "&vb_tid_parent=$tid",
    );
-   $links[] = l('Créer un nouveau terme ici', "admin/content/taxonomy/$vid/add/term", $options);
+   $links[] = l(t('Add new term here'), "admin/content/taxonomy/$vid/add/term", $options);
 
  }
  drupal_alter('vocabulary_browser_toolbar', $links, $vocabulary, $term_current);

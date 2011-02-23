@@ -1,6 +1,6 @@
 ; $Id$
 name = Vocabulary browser
-description = Provide an alternative way to browse into vocabularies with deep term levels
+description = Provide an alternative way to browse through vocabularies with deep term levels
 dependencies[] = taxonomy
 package = "Taxonomy"
 core = 6.x
