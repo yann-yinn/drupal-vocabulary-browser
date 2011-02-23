@@ -1,0 +1,136 @@
+div#vocabulary-browser-content{
+  padding-top : 0px;
+}
+
+/**
+ * Explorer de vocabulaires
+ */
+div#vocabulary-browser ul#vocabularies li {
+  float      : left;
+  background : none;
+}
+
+div#vocabulary-browser ul#vocabularies li a{
+  display     : block;
+  height      : 50px;
+  background  : url('images/vocabulary.png') no-repeat top center;
+  padding-top : 50px;
+  color       : black;
+}
+
+div#vocabulary-browser ul#vocabularies li a:hover{
+  text-decoration : none;
+}
+
+/**
+ * Explorer de termes
+ */
+
+div#vocabulary-browser ul#terms li a.is-new {
+  font-weight : bold !important;
+  background-color : rgb(225,250,225) !important;
+}
+
+div#vocabulary-browser div#term-new {
+  position : absolute;
+  top : 0;
+  left : 10px;
+  font-size : 9px;
+  color : green;
+}
+
+div#vocabulary-browser ul#terms li {
+  float      : left;
+  padding    : 5px;
+  position   : relative;
+  background : none;
+}
+
+div#vocabulary-browser ul#terms li a.view{
+  border      : solid transparent 1px;
+  display     : block;
+  text-align  : center;
+  height      : 60px;
+  width       : 100px;
+  padding     : 40px 7px 0px;
+  color       : black;
+  font-size   : 12px;
+  line-height : 13px;
+}
+
+div#vocabulary-browser ul#terms li a.view:hover{
+  text-decoration : none;
+  border : solid silver 1px;
+	background-color : rgb(230,226,210);
+}
+
+div#vocabulary-browser ul#terms li a.no-children{
+  background  : url('images/folder_term.png') no-repeat 42px 7px;
+}
+
+div#vocabulary-browser ul#terms li a.has-children{
+  background  : url('images/folder_term_parent.png') no-repeat 42px 7px;
+}
+
+div#vocabulary-browser ul#terms li a.edit{
+  position   : absolute;
+  top        : 16px;
+  right      : 20px;
+  margin     : 4px auto 0;
+  font-size  : 0;
+  display    : block;
+  height     : 20px;
+  width      : 20px;
+  background : url('images/term_edit.png') no-repeat;
+}
+
+/**
+ * Breadcrumb
+ */
+div#vocabulary-browser #breadcrumb{
+  border-bottom  : solid silver 1px;
+  padding-left   : 8px;
+  padding-bottom : 5px;
+  margin-bottom  : 15px;
+}
+
+div#vocabulary-browser #breadcrumb ul li{
+  float : left;
+  padding-right : 20px;
+  padding-left : 0px;
+  background : url(images/next.png) no-repeat right;
+}
+
+div#vocabulary-browser #breadcrumb ul li a{
+  color : gray;
+}
+
+div#vocabulary-browser #breadcrumb ul li.last{
+  background : none;
+	font-style : normal;
+  color : black;
+}
+
+div#vocabulary-browser .clear{
+  clear : both;
+}
+
+/**
+ * Toolbar
+ */
+div#vocabulary-browser-toolbar{
+}
+
+div#vocabulary-browser-toolbar li{
+  background : none;
+  padding    : 0;
+  float      : left;
+}
+
+div#vocabulary-browser-toolbar #new-term{
+  display : block;
+  height : 40px;
+  padding-left : 35px;
+  line-height : 33px;
+  background : url('images/term_new.png') no-repeat;
+}
