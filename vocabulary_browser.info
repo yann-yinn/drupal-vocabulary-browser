@@ -2,5 +2,5 @@
 name = Vocabulary browser
 description = Provide an alternative way to browse into vocabularies with deep term levels
 dependencies[] = taxonomy
-package = ideia
+package = "Taxonomy"
 core = 6.x
