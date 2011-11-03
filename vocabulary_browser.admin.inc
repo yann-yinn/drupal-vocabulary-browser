@@ -1,9 +1,15 @@
 <?php
+/**
+ * @file
+ *
+ * Admin form settings for vocabulary_browser
+ */
+
 function vocabulary_browser_settings_form() {
   $form = array();
   $form['#submit' ][] = 'vocabulary_browser_settings_form_submit';
   $form['vocabulary_browser_theme_path'] = array(
-    '#title' => 'Choix du theme',
+    '#title' => t('Choose vocabulary browser appearence'),
     '#type' => 'select',
     '#options' => vocabulary_browser_settings_form_themes_options(),
     '#default_value' => vocabulary_browser_theme_path_get(),
@@ -15,10 +21,9 @@ function vocabulary_browser_settings_form() {
     '#description' => "indiquez 0 pour illimité"
   );
   $form['vocabulary_browser_display_parents_at_top'] = array(
-    '#title' => 'Afficher les termes parents en haut',
+    '#title' =>  t('Display terms without children at the bottom');
     '#type' => 'checkbox',
     '#default_value' => variable_get('vocabulary_browser_display_parents_at_top', 1),
-    '#description' => "Note : l'ordre alphabétique restera respecté au sein des deux groupes de termes ainsi crées"
   );
   return system_settings_form($form);
 }
@@ -36,6 +41,8 @@ function vocabulary_browser_settings_form_themes_options() {
  * Submit callback for vocabulary_browser_settings_form
  */
 function vocabulary_browser_settings_form_submit() {
+  // @FIXME we need to rebuild theme only if theme choosen
+  // is not the same as current theme
   cache_clear_all('theme_registry', 'cache', TRUE);
   drupal_set_message('Theme registry has been rebuild to active new theme for vocabulary_browser');
 }

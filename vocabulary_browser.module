@@ -5,7 +5,6 @@
  * 
  * Provide an alternative way to browse through complex vocabularies with several levels
  *
- * @FIXME utiliser taxonomy_term_path()
  * @FIXME utiliser db_rewrite_sql()
  * @FIXME traductions + fichiers po de langues.
  * @FIXME hook_uninstall
