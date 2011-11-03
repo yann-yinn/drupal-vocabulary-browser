@@ -7,18 +7,15 @@
  *
  * @FIXME utiliser taxonomy_term_path()
  * @FIXME utiliser db_rewrite_sql()
- * @FIXME traductions
+ * @FIXME traductions + fichiers po de langues.
  * @FIXME hook_uninstall
  */
 
-/****************************
- * Hooks
- ***************************/
-
 /**
- * Implements hook_form_FORM_ID_alter
+ * Implements hook_form_FORM_ID_alter()
  *
- * when we are comming from vocabulary_browser to add a term, automatically
+ * we are using native taxonomy_form to add a term.
+ * when we are coming from vocabulary_browser to add a term, automatically
  * select the parent with tid in url
  */
 function vocabulary_browser_form_taxonomy_form_term_alter(&$form, &$form_state) {
@@ -28,8 +25,10 @@ function vocabulary_browser_form_taxonomy_form_term_alter(&$form, &$form_state) 
       $form['destination']['#value'] = urlencode($_GET['destination']);
     }
     // Preselect term using tid from url.
-    $tid_parent = (int)$_GET['vb_tid_parent'];
-    $form['advanced']['parent']['#default_value'] = array($tid_parent);
+    if (isset($_GET['vb_tid_parent'])) {
+      $tid_parent = (int)$_GET['vb_tid_parent'];
+      $form['advanced']['parent']['#default_value'] = array($tid_parent);
+    }
   }
 }
 
@@ -63,9 +62,11 @@ function vocabulary_browser_perm() {
 
 /**
  * Implements hook_taxonomy()
+ *
+ * we want to highlight last term created to help user
+ * quickly locate it.
  */
 function vocabulary_browser_taxonomy($op, $type, $array = NULL) {
-  // we want to highlight last term created to help user
   if ($type == 'term' && $op == 'insert') {
     // don't use variable_set for that, it would flush variables cache
     $_SESSION['vocabulary_browser_last_tid_inserted'] = (int)$array['tid'];
@@ -74,6 +75,10 @@ function vocabulary_browser_taxonomy($op, $type, $array = NULL) {
 
 /**
  * Implements hook_theme()
+ *
+ * this is a dynamic hook_theme : path depends on currently choosen
+ * theme for taxonomy brower. This allow other modules to add theme
+ * of their own.
  */
 function vocabulary_browser_theme($existing, $type, $theme, $path) {
   $vocabulary_browser_theme_path = vocabulary_browser_theme_path_get();
@@ -109,7 +114,8 @@ function vocabulary_browser_theme($existing, $type, $theme, $path) {
 /**
  * Implements hook_vocabulary_browser_themes();
  *
- * declare themes to be used by vocabulary_browser
+ * declare themes for vocabulary_browser
+ * we are giving term name, followed by theme directory path
  *
  * @see README.txt
  */
@@ -120,10 +126,6 @@ function vocabulary_browser_vocabulary_browser_themes() {
     'Simple'   => $path . '/simple',
   );
 }
-
-/*************************
- * Controller
- ************************/
 
 /**
  * Menu callback pour admin/content/taxonomy/vocabulary-browser
@@ -154,20 +156,21 @@ function vocabulary_browser_page() {
 }
 
 /**
- * Implements template_preprocess_hook
+ * Implements template_preprocess_hook()
  */
 function template_preprocess_vocabulary_browser_wrapper(&$variables) {
 
-  // ajout du css du thème choisi dans l'administration
+  // add css for choosen theme
   drupal_add_css(vocabulary_browser_theme_path_get() . '/vocabulary_browser.css');
   
-  // on ajoute le fil d'arianne à notre browser
   $vid = (int)arg(4);
   $tid = (int)arg(5);
 
+  // add our internal breadcrumb
   $breadcrumb_items        = vocabulary_browser_breadcrumb_items_get($vid, $tid);
   $variables['breadcrumb'] = theme('vocabulary_browser_breadcrumb', $breadcrumb_items);
 
+  // add our toolbar
   $toolbar_links           = vocabulary_browser_toolbar_links_get($vid, $tid);
   $variables['toolbar']    = theme('vocabulary_browser_toolbar', $toolbar_links);
 }
@@ -235,10 +238,6 @@ function template_preprocess_vocabulary_browser_vocabularies(&$variables) {
     $variables['links'][] = l(t($vocabulary->name), "admin/content/taxonomy/vocabulary-browser/$vocabulary->vid");
   }
 }
-
-/*************************
- * Model
- ************************/
 
 /**
  * Find all first-level term for a given vocabulary and parent term.
@@ -327,7 +326,7 @@ function vocabulary_browser_toolbar_links_get() {
  * Find all term children tids from a given term.
  *
  * @return
- *   array of children tids trouvés or FALSE.
+ *   array of children tids found or FALSE.
  */
 function vocabulary_browser_term_children_tids_get($tid_parent) {
   $sql    = "SELECT tid FROM term_hierarchy WHERE parent = %d";
@@ -339,28 +338,14 @@ function vocabulary_browser_term_children_tids_get($tid_parent) {
   return $tids ? $tids : (bool)FALSE;
 }
 
-
-/*********************
- * Helper functions
- ********************/
-
-/**
- * Vérifie que le vid et le tid en provenance de l'url sont bien
- * des chiffres et sont cohérents : par exemple
- * on ne doit si le vid est 3 est que le term est 6 on 
- * vérifie que le term 6 appartient effectivement au vid 3
- * pour éviter les surprises.
- */
-function vocabulary_browser_check_args() {}
-
 /**
  * Sort terms by name.
  *
  * @param $terms
- *   array d'objets term
+ *   array of term objects
  *
  * @return
- *   array d'objet term sorted
+ *   array of term objects alphabetically sorted
  */
 function vocabulary_browser_terms_alphabetical_order($terms) {
   $index = array();
@@ -408,7 +393,7 @@ function _vocabulary_browser_term_is_new($term) {
 }
 
 /**
- * Helper functions to get current theme path for vocabulary_browser
+ * Helper function to get current theme path for vocabulary_browser
  */
 function vocabulary_browser_theme_path_get() {
  return variable_get('vocabulary_browser_theme_path', drupal_get_path('module', 'vocabulary_browser') . '/themes/simple');
