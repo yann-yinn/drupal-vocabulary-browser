@@ -15,10 +15,10 @@ function vocabulary_browser_settings_form() {
     '#default_value' => vocabulary_browser_theme_path_get(),
   );
   $form['vocabulary_browser_term_name_lenght'] = array(
-    '#title' => 'Limiter la longueur des noms de termes affichés',
+    '#title' => t('Limit lenght of term names when displaying them under a folder'),
     '#type' => 'textfield',
     '#default_value' => variable_get('vocabulary_browser_term_name_lenght', 40),
-    '#description' => "indiquez 0 pour illimité"
+    '#description' => t("set 0 for unlimited"),
   );
   $form['vocabulary_browser_display_parents_at_top'] = array(
     '#title' =>  t('Display terms without children at the bottom');
