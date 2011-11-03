@@ -15,13 +15,13 @@ function vocabulary_browser_settings_form() {
     '#default_value' => vocabulary_browser_theme_path_get(),
   );
   $form['vocabulary_browser_term_name_lenght'] = array(
-    '#title' => t('Limit lenght of term names when displaying them under a folder'),
+    '#title' => t('Limit term names lenght when displaying'),
     '#type' => 'textfield',
     '#default_value' => variable_get('vocabulary_browser_term_name_lenght', 40),
     '#description' => t("set 0 for unlimited"),
   );
   $form['vocabulary_browser_display_parents_at_top'] = array(
-    '#title' =>  t('Display terms without children at the bottom');
+    '#title' =>  t('Display terms without children at the bottom'),
     '#type' => 'checkbox',
     '#default_value' => variable_get('vocabulary_browser_display_parents_at_top', 1),
   );
@@ -44,5 +44,5 @@ function vocabulary_browser_settings_form_submit() {
   // @FIXME we need to rebuild theme only if theme choosen
   // is not the same as current theme
   cache_clear_all('theme_registry', 'cache', TRUE);
-  drupal_set_message('Theme registry has been rebuild to active new theme for vocabulary_browser');
+  drupal_set_message('Theme registry has been rebuilt to active new theme');
 }
