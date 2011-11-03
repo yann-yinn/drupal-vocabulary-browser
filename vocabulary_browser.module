@@ -65,8 +65,9 @@ function vocabulary_browser_perm() {
  * Implements hook_taxonomy()
  */
 function vocabulary_browser_taxonomy($op, $type, $array = NULL) {
+  // we want to highlight last term created to help user
   if ($type == 'term' && $op == 'insert') {
-    // don't use variable_set, it would flush variables cache
+    // don't use variable_set for that, it would flush variables cache
     $_SESSION['vocabulary_browser_last_tid_inserted'] = (int)$array['tid'];
   }
 }
@@ -107,6 +108,8 @@ function vocabulary_browser_theme($existing, $type, $theme, $path) {
 
 /**
  * Implements hook_vocabulary_browser_themes();
+ *
+ * declare themes to be used by vocabulary_browser
  *
  * @see README.txt
  */
@@ -372,6 +375,9 @@ function vocabulary_browser_terms_alphabetical_order($terms) {
   return $sorted_terms;
 }
 
+/**
+ * Display terms who are parents at the top.
+ */
 function _vocabulary_browser_parents_at_top($terms) {
   $parents = array();
   $no_chidren = array();
@@ -388,7 +394,7 @@ function _vocabulary_browser_parents_at_top($terms) {
 }
 
 /**
- * Détermine si un terme vient d'être juste d'être inséré en base.
+ * tell us if this term has just been created by current user.
  */
 function _vocabulary_browser_term_is_new($term) {
   $is_new = FALSE;
