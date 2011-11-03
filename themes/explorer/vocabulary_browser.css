@@ -16,6 +16,8 @@ div#vocabulary-browser ul#vocabularies li a{
   background  : url('images/vocabulary.png') no-repeat top center;
   padding-top : 50px;
   color       : black;
+  width       : 50px;
+  text-align  : center;
 }
 
 div#vocabulary-browser ul#vocabularies li a:hover{
@@ -25,7 +27,6 @@ div#vocabulary-browser ul#vocabularies li a:hover{
 /**
  * Explorer de termes
  */
-
 div#vocabulary-browser ul#terms li a.is-new {
   font-weight : bold !important;
   background-color : rgb(225,250,225) !important;

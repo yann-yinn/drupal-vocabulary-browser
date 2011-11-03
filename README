@@ -1,0 +1,21 @@
+You can write new theme for vocabulary browser by implementing
+hook_vocabulary_browser_themes()
+theme can be changed in administration (admin/settings/vocabulary-browser)
+
+Example for a module called "example"
+we have to return a simple array containing
+- name of our theme
+- path of our theme directory.
+
+<code>
+/**
+ * Implements hook_vocabulary_browser_themes();
+ */
+function vocabulary_browser_vocabulary_browser_themes() {
+  $path = drupal_get_path('module', 'example') . '/themes';
+  return array(
+    'Custom' => $path . '/explorer',
+    'Ubuntu' => $path . '/simple',
+  );
+}
+</code>
